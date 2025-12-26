@@ -49,17 +49,66 @@ public class Machine
                 Pop();
                 break;
 
+            case OperationCode.Neg:
+                Negation();
+                break;
+
+            case OperationCode.Not:
+                Not();
+                break;
+
+            case OperationCode.Mul:
+                Binary((a, b) => a * b);
+                break;
+
+            case OperationCode.Div:
+                Binary((a, b) => a / b);
+                break;
+
+            case OperationCode.Mod:
+                Binary((a, b) => a % b);
+                break;
+
+            case OperationCode.And:
+                Binary((a, b) => a & b);
+                break;
+
+            case OperationCode.Or:
+                Binary((a, b) => a | b);
+                break;
+
+            case OperationCode.Eq:
+                Comparison((a, b) => a == b);
+                break;
+
+            case OperationCode.Ne:
+                Comparison((a, b) => a != b);
+                break;
+
+            case OperationCode.Lt:
+                Comparison((a, b) => a < b);
+                break;
+
+            case OperationCode.Le:
+                Comparison((a, b) => a <= b);
+                break;
+
+            case OperationCode.Gt:
+                Comparison((a, b) => a > b);
+                break;
+
+            case OperationCode.Ge:
+                Comparison((a, b) => a >= b);
+                break;
+
             case OperationCode.Add:
                 Binary((a, b) => a + b);
                 break;
 
-            case OperationCode.Print:
-                Print();
+            case OperationCode.Sub:
+                Binary((a, b) => a - b);
                 break;
-
-            case OperationCode.Halt:
-                return false;
-
+            
             case OperationCode.Jump:
                 Jump();
                 break;
@@ -68,7 +117,24 @@ public class Machine
                 Jz();
                 break;
 
+            case OperationCode.Call:
+                Call();
+                break;
 
+            case OperationCode.Ret:
+                Ret();
+                break;
+
+            case OperationCode.Input:
+                Input();
+                break;
+
+            case OperationCode.Print:
+                Print();
+                break;
+
+            case OperationCode.Halt:
+                return false;
 
             default:
                 throw new Exception($"Unknown opcode: {opcode}");
@@ -98,9 +164,6 @@ public class Machine
                     value = ReadInt32(address);
                     break;
                 }
-
-           
-
 
             default:
                 throw new Exception("Invalid PUSH addressing mode");
@@ -207,6 +270,52 @@ public class Machine
             ip = address;
     }
 
+    private void Negation()
+    {
+        int value = BasicPop();
+        BasicPush(-value);
+    }
 
+    private void Not()
+    {
+        int value = BasicPop();
+        BasicPush(~value);
+    }
+
+    private void Comparison(Func<int, int, bool> op)
+    {
+        int right = BasicPop();
+        int left = BasicPop();
+        BasicPush(op(left, right) ? 1 : 0);
+    }
+
+    private void Call()
+    {
+        ushort address = ReadWord(ip);
+        ip += 2;
+
+        BasicPush(ip);
+        BasicPush(fp);
+
+        fp = sp;
+        ip = (short)address;
+    }
+
+    private void Ret()
+    {
+        int value = BasicPop();
+
+        sp = fp;
+        fp = (short)BasicPop();
+        ip = (short)BasicPop();
+
+        BasicPush(value);
+    }
+
+    private void Input()
+    {
+        int value = int.Parse(Console.ReadLine()!);
+        BasicPush(value);
+    }
 
 }
