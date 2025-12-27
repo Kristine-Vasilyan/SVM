@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static SVM.OperetionCodes.OperationCodes;
+﻿using System.Text;
 
 namespace SVM.OperetionCodes
 {
     public class Instruction
     {
-        public int Address;        
+        public int Address;
         public byte Opcode;
-        public int Immediate; 
+        public int Immediate;
         public ushort Indirect;
 
         public int Size()

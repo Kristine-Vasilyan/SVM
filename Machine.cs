@@ -1,9 +1,4 @@
 ﻿using SVM.OperetionCodes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SVM;
 
@@ -19,7 +14,7 @@ public class Machine
     public Machine()
     {
         ip = 0;
-        sp = 0;    
+        sp = 0;
         fp = 0;
         memory = new byte[MemorySize];
     }
@@ -108,7 +103,7 @@ public class Machine
             case OperationCode.Sub:
                 Binary((a, b) => a - b);
                 break;
-            
+
             case OperationCode.Jump:
                 Jump();
                 break;
@@ -188,7 +183,7 @@ public class Machine
 
     private int ResolveRelativeAddress(ushort relative)
     {
-        int address = (short)((relative << 2) >> 2); 
+        int address = (short)((relative << 2) >> 2);
         ushort register = (ushort)(relative & 0xC000);
 
         switch (register)

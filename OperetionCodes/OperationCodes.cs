@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SVM.OperetionCodes;
+﻿namespace SVM.OperetionCodes;
 
 public static class OperationCodes
 {
@@ -93,8 +86,8 @@ public static class OperationCodes
     public struct Instruction(OperationCode opcode, int immediate = 0, ushort indirect = 0)
     {
         public OperationCode Opcode = opcode;
-        public int Immediate = immediate;    
-        public ushort Indirect = indirect;  
+        public int Immediate = immediate;
+        public ushort Indirect = indirect;
     }
 }
 
