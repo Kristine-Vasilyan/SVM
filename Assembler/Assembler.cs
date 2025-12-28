@@ -10,7 +10,7 @@ namespace SVM.Assembler
         {
             var scanner = new Scanner(reader);
             var builder = new Builder();
-            this.Builder = builder;
+            Builder = builder;
             var parser = new Parser(scanner, builder);
 
             parser.Parse();

@@ -48,8 +48,11 @@ namespace SVM.OperetionCodes
         {
             var sb = new StringBuilder();
             sb.Append($"{Address:X4}");
+
             foreach (var b in Bytes())
+            {
                 sb.Append($" {b:X2}");
+            }
             return sb.ToString();
         }
     }

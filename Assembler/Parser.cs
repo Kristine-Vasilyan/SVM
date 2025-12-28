@@ -180,7 +180,9 @@ namespace SVM.Assembler
             Expect(Token.LeftBr);
 
             if (current.Kind != Token.Register)
+            {
                 throw new Exception("Expected register");
+            }
 
             ushort reg = current.Value switch
             {
@@ -200,7 +202,9 @@ namespace SVM.Assembler
             }
 
             if (current.Kind != Token.Number)
+            {
                 throw new Exception("Expected displacement");
+            }
 
             short offset = (short)(int.Parse(current.Value) * sign);
             Advance();

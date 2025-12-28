@@ -24,7 +24,9 @@ public class Machine
     public void Load(byte[] loadData)
     {
         if (loadData.Length > memory.Length)
+        {
             throw new Exception("Program too large for memory.");
+        }
 
         Array.Copy(loadData, memory, loadData.Length);
 
@@ -239,7 +241,9 @@ public class Machine
     private int BasicPop()
     {
         if (sp - 4 < 0)
+        {
             throw new Exception("Stack underflow");
+        }
 
         sp -= 4;
         return ReadInt32(sp);
@@ -282,7 +286,9 @@ public class Machine
         int value = BasicPop();
 
         if (value == 0)
+        {
             ip = address;
+        }
     }
 
     private void Negation()
@@ -348,7 +354,9 @@ public class Machine
 
         Console.WriteLine("Next instruction bytes:");
         for (int i = ip; i < Math.Min(ip + 8, memory.Length); i++)
+        {
             Console.Write($"{memory[i]:X2} ");
+        }
         Console.WriteLine();
     }
 
