@@ -3,7 +3,7 @@
 public static class OperationCodes
 {
     public static readonly OperationCode[] Codes =
-    {
+    [
             OperationCode.Nop,
             OperationCode.Push,
             OperationCode.Pop,
@@ -33,10 +33,10 @@ public static class OperationCodes
             OperationCode.Le,
             OperationCode.Gt,
             OperationCode.Ge
-        };
+        ];
 
     public static readonly Dictionary<OperationCode, string> Mnemonics =
-        new Dictionary<OperationCode, string>
+        new()
         {
                 { OperationCode.Nop, "NOP" },
                 { OperationCode.Push, "PUSH" },

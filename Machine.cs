@@ -4,12 +4,12 @@ namespace SVM;
 
 public class Machine
 {
-    byte[] memory;
+    private readonly byte[] memory;
     int ip;
     int sp;
     int fp;
     public bool DebugMode { get; set; } = false;
-    public Dictionary<int, string> Breakpoints { get; } = new();
+    public Dictionary<int, string> Breakpoints { get; } = [];
 
     const int MemorySize = 1024 * 16;
 
@@ -40,9 +40,9 @@ public class Machine
         byte mode = (byte)(command & 0xC0);
         OperationCode opcode = (OperationCode)(command & 0x3F);
 
-        if (DebugMode && Breakpoints.ContainsKey(ip))
+        if (DebugMode && Breakpoints.TryGetValue(ip, out string value))
         {
-            Console.WriteLine($"--- BREAKPOINT at {ip:X4} ({Breakpoints[ip]}) ---");
+            Console.WriteLine($"--- BREAKPOINT at {ip:X4} ({value}) ---");
             DumpState();
             Console.WriteLine("Press ENTER to continue...");
             Console.ReadLine();
@@ -157,7 +157,7 @@ public class Machine
 
     private void Push(byte mode)
     {
-        int value = 0;
+        int value;
 
         switch (mode)
         {

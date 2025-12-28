@@ -3,18 +3,10 @@ using System.Text;
 
 namespace SVM.Assembler
 {
-    public sealed class Scanner
+    public sealed class Scanner(TextReader reader)
     {
-        private readonly TextReader source;
-        private int line = 1;
+        private readonly TextReader source = reader;
         private int peek = -1;
-        private Lexeme peekedLexeme = null;
-
-        public Scanner(TextReader reader)
-        {
-            source = reader;
-        }
-
         private static readonly Dictionary<char, Token> MetaSymbols = new()
     {
         { ':', Token.Colon },
@@ -44,7 +36,6 @@ namespace SVM.Assembler
             if (ch == '#')
             {
                 string text = ReadCharsWhile(c => c != '\n');
-                line++;
                 return new Lexeme(Token.Breakpoint, text.Trim());
             }
 
@@ -74,9 +65,6 @@ namespace SVM.Assembler
 
             if (MetaSymbols.TryGetValue(ch, out var tok))
             {
-                if (tok == Token.NewLine)
-                    line++;
-
                 return new Lexeme(tok, ch.ToString());
             }
 

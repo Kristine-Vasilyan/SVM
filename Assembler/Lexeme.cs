@@ -1,15 +1,9 @@
 ﻿namespace SVM.Assembler
 {
-    public sealed class Lexeme
+    public sealed class Lexeme(Token kind, string value)
     {
-        public Token Kind { get; }
-        public string Value { get; }
-
-        public Lexeme(Token kind, string value)
-        {
-            Kind = kind;
-            Value = value;
-        }
+        public Token Kind { get; } = kind;
+        public string Value { get; } = value;
 
         public override string ToString()
         {

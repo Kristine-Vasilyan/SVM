@@ -8,7 +8,7 @@
 
         private int offset = 0;
 
-        public Dictionary<int, string> Breakpoints { get; } = new();
+        public Dictionary<int, string> Breakpoints { get; } = [];
 
         public int CurrentOffset => offset;
 
@@ -84,10 +84,10 @@
                 var instr = pair.Key;
                 var label = pair.Value;
 
-                if (!labels.ContainsKey(label))
+                if (!labels.TryGetValue(label, out int value))
                     throw new Exception($"Unknown label: {label}");
 
-                instr.Indirect = (ushort)labels[label];
+                instr.Indirect = (ushort)value;
             }
             return true;
         }
