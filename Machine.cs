@@ -21,8 +21,15 @@ public class Machine
 
     public void Load(byte[] loadData)
     {
+        if (loadData.Length > memory.Length)
+            throw new Exception("Program too large for memory.");
+
         Array.Copy(loadData, memory, loadData.Length);
-        sp = loadData.Length + 1;
+
+        ip = 0;
+        sp = loadData.Length;
+        fp = sp;
+
     }
 
     public bool Step()
@@ -221,6 +228,9 @@ public class Machine
 
     private int BasicPop()
     {
+        if (sp - 4 < 0)
+            throw new Exception("Stack underflow");
+
         sp -= 4;
         return ReadInt32(sp);
     }
@@ -293,7 +303,7 @@ public class Machine
         BasicPush(fp);
 
         fp = sp;
-        ip = (short)address;
+        ip = address;
     }
 
     private void Ret()

@@ -2,72 +2,109 @@
 
 namespace SVM.Assembler
 {
-
-
     public sealed class Parser
     {
         private readonly Scanner scanner;
-        private Lexeme lookahead;
-
         private readonly Builder builder;
-
-        private static readonly Dictionary<string, OperationCode> Operations =
-            OperationCodes.Mnemonics.ToDictionary(p => p.Value, p => p.Key);
-
-        private static readonly Dictionary<string, ushort> Registers = new()
-    {
-        { "IP", OperationCodes.Registers.InstructionPointer },
-        { "SP", OperationCodes.Registers.StackPointer },
-        { "FP", OperationCodes.Registers.FramePointer }
-    };
+        private Lexeme current;
 
         public Parser(Scanner scanner, Builder builder)
         {
             this.scanner = scanner;
             this.builder = builder;
+            Advance();
+        }
+
+        private void Advance()
+        {
+            current = scanner.ScanOne();
+        }
+
+        private void Expect(Token kind)
+        {
+            if (current.Kind != kind)
+            {
+                throw new Exception($"Expected {kind}, got {current.Kind}");
+            }
+            Advance();
         }
 
         public void Parse()
         {
-            lookahead = scanner.ScanOne();
-            ParseNewLines();
-
-            while (!Has(Token.Eos))
+            while (current.Kind != Token.Eos)
             {
                 ParseLine();
             }
-        }
 
-        private void ParseNewLines()
-        {
-            while (Has(Token.NewLine))
-                lookahead = scanner.ScanOne();
+            builder.Validate();
         }
 
         private void ParseLine()
         {
-            if (Has(Token.Ident))
-                ParseLabel();
-
-            if (Has(Token.Operation))
-                ParseOperation();
-
-            if (Has(Token.NewLine))
+            if (current.Kind == Token.NewLine)
             {
-                ParseNewLines();
+                Advance();
                 return;
             }
 
-            throw Report($"Line starts with invalid symbol {lookahead}");
+            if (current.Kind == Token.Ident)
+            {
+                string name = current.Value;
+                Advance();
+
+                if (current.Kind == Token.Colon)
+                {
+                    Advance();
+                    builder.SetLabel(name);
+                    return;
+                }
+
+                throw new Exception("Unexpected identifier");
+            }
+
+            if (current.Kind == Token.Operation)
+            {
+                ParseInstruction();
+                return;
+            }
+
+            throw new Exception($"Unexpected token {current}");
         }
 
-        private void ParseOperation()
+        private void ParseInstruction()
         {
-            if (!Has(Token.Operation))
-                throw Report($"Expected operation, got {lookahead}");
+            string op = current.Value.ToUpper();
+            Advance();
 
-            switch (lookahead.Value)
+            switch (op)
             {
+                case "NOP": builder.AddBasic((byte)OperationCode.Nop); break;
+                case "RET": builder.Ret(); break;
+                case "HALT": builder.Halt(); break;
+
+                case "ADD": builder.Add(); break;
+                case "SUB": builder.Sub(); break;
+                case "MUL": builder.Mul(); break;
+                case "DIV": builder.Div(); break;
+                case "MOD": builder.Mod(); break;
+
+                case "NEG": builder.Neg(); break;
+
+                case "AND": builder.And(); break;
+                case "OR": builder.Or(); break;
+                case "NOT": builder.Not(); break;
+
+                case "EQ": builder.Eq(); break;
+                case "NE": builder.Ne(); break;
+                case "LT": builder.Lt(); break;
+                case "LE": builder.Le(); break;
+                case "GT": builder.Gt(); break;
+                case "GE": builder.Ge(); break;
+
+                case "INPUT": builder.Input(); break;
+                case "PRINT": builder.Print(); break;
+
+                // stack 
                 case "PUSH":
                     ParsePush();
                     break;
@@ -76,133 +113,85 @@ namespace SVM.Assembler
                     ParsePop();
                     break;
 
+                // control flow
                 case "CALL":
+                    ParseLabelOperand(builder.Call);
+                    break;
+
                 case "JUMP":
+                    ParseLabelOperand(builder.Jump);
+                    break;
+
                 case "JZ":
-                    ParseJump();
+                    ParseLabelOperand(builder.Jz);
                     break;
 
                 default:
-                    ParseSimple();
-                    break;
+                    throw new Exception($"Unknown instruction {op}");
             }
         }
 
+        // OPERANDS
+
         private void ParsePush()
         {
-            var name = Match(Token.Operation);
-            if (name != "PUSH")
-                throw Report($"Expected PUSH, got {name}");
+            if (current.Kind == Token.Number)
+            {
+                builder.PushI(int.Parse(current.Value));
+                Advance();
+                return;
+            }
 
-            if (Has(Token.Number, Token.Plus, Token.Minus))
-            {
-                int number = ParseNumber();
-                builder.AddWithNumeric(OperationCode.Push, number);
-            }
-            else if (Has(Token.LeftBr))
-            {
-                var (reg, disp) = ParseIndirect();
-                builder.AddWithAddress(OperationCode.Push, reg, disp);
-            }
-            else
-            {
-                throw Report("Invalid PUSH argument");
-            }
+            ParseIndirect(builder.PushA);
         }
 
         private void ParsePop()
         {
-            var name = Match(Token.Operation);
-            if (name != "POP")
-                throw Report($"Expected POP, got {name}");
-
-            if (!Has(Token.LeftBr))
-                throw Report("POP expects indirect addressing");
-
-            var (reg, disp) = ParseIndirect();
-            builder.AddWithAddress(OperationCode.Pop, reg, disp);
+            ParseIndirect(builder.PopA);
         }
 
-        private void ParseJump()
+        private void ParseLabelOperand(Action<string> emit)
         {
-            var name = Match(Token.Operation);
+            if (current.Kind != Token.Ident)
+                throw new Exception("Expected label");
 
-            if (name != "CALL" && name != "JUMP" && name != "JZ")
-                throw Report($"Expected CALL/JUMP/JZ, got {name}");
-
-            var label = Match(Token.Ident);
-            builder.AddWithLabel(Operations[name], label);
+            emit(current.Value);
+            Advance();
         }
 
-        private void ParseSimple()
+        private void ParseIndirect(Action<ushort, short> emit)
         {
-            var name = Match(Token.Operation);
-            builder.AddBasic(Operations[name]);
-        }
+            Expect(Token.LeftBr);
 
-        private int ParseNumber()
-        {
+            if (current.Kind != Token.Register)
+                throw new Exception("Expected register");
+
+            ushort reg = current.Value switch
+            {
+                "SP" => OperationCodes.Registers.StackPointer,
+                "FP" => OperationCodes.Registers.FramePointer,
+                "IP" => OperationCodes.Registers.InstructionPointer,
+                _ => throw new Exception("Unknown register")
+            };
+
+            Advance();
+
             int sign = 1;
-
-            if (Has(Token.Plus))
-                Match(Token.Plus);
-            else if (Has(Token.Minus))
+            if (current.Kind == Token.Plus || current.Kind == Token.Minus)
             {
-                Match(Token.Minus);
-                sign = -1;
+                sign = current.Kind == Token.Minus ? -1 : 1;
+                Advance();
             }
 
-            string num = Match(Token.Number);
-            return sign * int.Parse(num, CultureInfo.InvariantCulture);
+            if (current.Kind != Token.Number)
+                throw new Exception("Expected displacement");
+
+            short offset = (short)(int.Parse(current.Value) * sign);
+            Advance();
+
+            Expect(Token.RightBr);
+
+            emit(reg, offset);
         }
-
-        private (ushort reg, short disp) ParseIndirect()
-        {
-            Match(Token.LeftBr);
-
-            string regName = Match(Token.Register);
-            ushort reg = Registers[regName];
-
-            short sign = 1;
-            if (Has(Token.Plus))
-                Match(Token.Plus);
-            else if (Has(Token.Minus))
-            {
-                Match(Token.Minus);
-                sign = -1;
-            }
-            else
-                throw Report("Expected '+' or '-'");
-
-            string num = Match(Token.Number);
-            short disp = (short)(sign * short.Parse(num, CultureInfo.InvariantCulture));
-
-            Match(Token.RightBr);
-            return (reg, disp);
-        }
-
-        private void ParseLabel()
-        {
-            string name = Match(Token.Ident);
-            Match(Token.Colon);
-            builder.SetLabel(name);
-        }
-
-        private string Match(Token expected)
-        {
-            if (!Has(expected))
-                throw Report($"Expected {expected}, got {lookahead}");
-
-            string value = lookahead.Value;
-            lookahead = scanner.ScanOne();
-            return value;
-        }
-
-        private bool Has(params Token[] tokens)
-            => tokens.Contains(lookahead.Kind);
-
-        private Exception Report(string message)
-            => new Exception($"ERROR [line {scanner.Line}]: {message}");
     }
-
 }

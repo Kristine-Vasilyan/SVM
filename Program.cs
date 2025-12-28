@@ -1,27 +1,56 @@
-﻿using SVM.OperetionCodes;
-
-namespace SVM
+﻿namespace SVM
 {
     internal class Program
     {
         static void Main()
         {
-            var b = new Builder();
+            //var source = """
+            //            PUSH 10
+            //            PUSH 20
+            //            ADD
+            //            PRINT
+            //            HALT
+            //            """;
 
-            b.PushI(10);
-            b.PushI(2);
-            b.Div();
-            b.Print();
-            b.Halt();
+            //var source = """
+            //            PUSH 7
+            //            PUSH 3
+            //            MUL
+            //            PRINT 
+            //            HALT
+            //            """;
+
+            //var source = """
+            //            PUSH 0
+            //            JZ skip
+            //            PUSH 100
+            //            PRINT
+            //            skip:
+            //            PUSH 200
+            //            PRINT
+            //            HALT
+            //            """;
 
 
-            b.Validate();
+            var source = """
+                        CALL addTwo
+                        HALT
+
+                        addTwo:
+                            PUSH 2
+                            PUSH 3
+                            ADD
+                            PRINT
+                            RET
+                        """;
+
+            var assembler = new Assembler.Assembler();
+            byte[] program = assembler.Assemble(new StringReader(source));
 
             var vm = new Machine();
-            vm.Load(b.Bytes());
+            vm.Load(program);
             vm.Run();
-
-
         }
+
     }
 }
