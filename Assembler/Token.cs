@@ -13,7 +13,8 @@
         RightBr,
         Plus,
         Minus,
-        Eos
+        Eos,
+        Breakpoint
     }
 
     public static class TokenNames
@@ -31,7 +32,8 @@
         { Token.RightBr, "]" },
         { Token.Plus, "+" },
         { Token.Minus, "-" },
-        { Token.Eos, "Eos" }
+        { Token.Eos, "Eos" },
+        { Token.Breakpoint, "#breakpoint" }
     };
     }
 }

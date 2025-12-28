@@ -8,6 +8,8 @@ public class Machine
     int ip;
     int sp;
     int fp;
+    public bool DebugMode { get; set; } = false;
+    public Dictionary<int, string> Breakpoints { get; } = new();
 
     const int MemorySize = 1024 * 16;
 
@@ -37,6 +39,14 @@ public class Machine
         byte command = memory[ip++];
         byte mode = (byte)(command & 0xC0);
         OperationCode opcode = (OperationCode)(command & 0x3F);
+
+        if (DebugMode && Breakpoints.ContainsKey(ip))
+        {
+            Console.WriteLine($"--- BREAKPOINT at {ip:X4} ({Breakpoints[ip]}) ---");
+            DumpState();
+            Console.WriteLine("Press ENTER to continue...");
+            Console.ReadLine();
+        }
 
         switch (opcode)
         {
@@ -321,6 +331,34 @@ public class Machine
     {
         int value = int.Parse(Console.ReadLine()!);
         BasicPush(value);
+    }
+
+    private void DumpState()
+    {
+        Console.WriteLine($"IP: {ip}, SP: {sp}, FP: {fp}");
+        Console.WriteLine("Top of stack:");
+        for (int i = Math.Max(sp - 16, 0); i < sp; i += 4)
+        {
+            if (i + 4 <= memory.Length)
+            {
+                int val = BitConverter.ToInt32(memory, i);
+                Console.WriteLine($"[{i:X4}] = {val}");
+            }
+        }
+
+        Console.WriteLine("Next instruction bytes:");
+        for (int i = ip; i < Math.Min(ip + 8, memory.Length); i++)
+            Console.Write($"{memory[i]:X2} ");
+        Console.WriteLine();
+    }
+
+    public void LoadBreakpoints(Dictionary<int, string> bps)
+    {
+        Breakpoints.Clear();
+        foreach (var kvp in bps)
+        {
+            Breakpoints[kvp.Key] = kvp.Value;
+        }
     }
 
 }

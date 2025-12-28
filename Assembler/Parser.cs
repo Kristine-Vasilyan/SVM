@@ -7,6 +7,7 @@ namespace SVM.Assembler
         private readonly Scanner scanner;
         private readonly Builder builder;
         private Lexeme current;
+        private Lexeme previousOperation = null;
 
         public Parser(Scanner scanner, Builder builder)
         {
@@ -17,6 +18,10 @@ namespace SVM.Assembler
 
         private void Advance()
         {
+            if (current != null && current.Kind == Token.Operation)
+            {
+                previousOperation = current;
+            }
             current = scanner.ScanOne();
         }
 
@@ -43,6 +48,17 @@ namespace SVM.Assembler
         {
             if (current.Kind == Token.NewLine)
             {
+                Advance();
+                return;
+            }
+
+            if (current.Kind == Token.Breakpoint)
+            {
+                string instrName = "UNKNOWN";
+                if (previousOperation != null && previousOperation.Kind == Token.Operation)
+                    instrName = previousOperation.Value;
+
+                builder.AddBreakpoint(instrName);
                 Advance();
                 return;
             }

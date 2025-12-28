@@ -8,6 +8,15 @@
 
         private int offset = 0;
 
+        public Dictionary<int, string> Breakpoints { get; } = new();
+
+        public int CurrentOffset => offset;
+
+        public void AddBreakpoint(string instructionName)
+        {
+            Breakpoints[offset] = instructionName;
+        }
+
         public byte[] Bytes()
         {
             using var ms = new MemoryStream();

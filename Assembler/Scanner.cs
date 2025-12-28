@@ -8,6 +8,7 @@ namespace SVM.Assembler
         private readonly TextReader source;
         private int line = 1;
         private int peek = -1;
+        private Lexeme peekedLexeme = null;
 
         public Scanner(TextReader reader)
         {
@@ -38,6 +39,13 @@ namespace SVM.Assembler
             {
                 ReadCharsWhile(c => c != '\n');
                 ch = ReadChar();
+            }
+
+            if (ch == '#')
+            {
+                string text = ReadCharsWhile(c => c != '\n');
+                line++;
+                return new Lexeme(Token.Breakpoint, text.Trim());
             }
 
             if (ch == '\0')
@@ -118,5 +126,6 @@ namespace SVM.Assembler
         private static bool IsOperation(string text) => OperationCodes.Mnemonics.ContainsValue(text);
 
         private static bool IsRegister(string text) => text == "IP" || text == "SP" || text == "FP";
+
     }
 }

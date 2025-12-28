@@ -5,10 +5,12 @@ namespace SVM.Assembler
 
     public sealed class Assembler
     {
+        public Builder Builder { get; private set; }
         public byte[] Assemble(TextReader reader)
         {
             var scanner = new Scanner(reader);
             var builder = new Builder();
+            this.Builder = builder;
             var parser = new Parser(scanner, builder);
 
             parser.Parse();
