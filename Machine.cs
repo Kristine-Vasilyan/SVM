@@ -9,7 +9,9 @@ public class Machine
     int sp;
     int fp;
     public bool DebugMode { get; set; } = false;
-    public Dictionary<int, string> Breakpoints { get; } = [];
+    public bool TraceMode { get; set; } = false;
+    public Dictionary<int, string> Breakpoints = [];
+    private Dictionary<int, string> InstructionNames = [];
 
     const int MemorySize = 1024 * 16;
 
@@ -21,7 +23,7 @@ public class Machine
         memory = new byte[MemorySize];
     }
 
-    public void Load(byte[] loadData)
+    public void Load(byte[] loadData, Dictionary<int, string> instructionNames = null, Dictionary<int, string> breakpoints = null)
     {
         if (loadData.Length > memory.Length)
         {
@@ -34,6 +36,9 @@ public class Machine
         sp = loadData.Length;
         fp = sp;
 
+        InstructionNames = instructionNames != null ? new Dictionary<int, string>(instructionNames) : [];
+
+        Breakpoints = breakpoints != null ? new Dictionary<int, string>(breakpoints) : [];
     }
 
     public bool Step()
@@ -41,6 +46,12 @@ public class Machine
         byte command = memory[ip++];
         byte mode = (byte)(command & 0xC0);
         OperationCode opcode = (OperationCode)(command & 0x3F);
+
+        if (TraceMode)
+        {
+            string name = InstructionNames.TryGetValue(ip, out var n) ? n : opcode.ToString();
+            Console.WriteLine($"TRACE IP={ip:X4} {name,-8} SP={sp} FP={fp}");
+        }
 
         if (DebugMode && Breakpoints.TryGetValue(ip, out string value))
         {
@@ -359,14 +370,4 @@ public class Machine
         }
         Console.WriteLine();
     }
-
-    public void LoadBreakpoints(Dictionary<int, string> bps)
-    {
-        Breakpoints.Clear();
-        foreach (var kvp in bps)
-        {
-            Breakpoints[kvp.Key] = kvp.Value;
-        }
-    }
-
 }

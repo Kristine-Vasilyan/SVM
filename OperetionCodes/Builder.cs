@@ -9,6 +9,7 @@
         private int offset = 0;
 
         public Dictionary<int, string> Breakpoints { get; } = [];
+        public Dictionary<int, string> InstructionNames { get; } = [];
 
         public int CurrentOffset => offset;
 
@@ -17,6 +18,10 @@
             Breakpoints[offset] = instructionName;
         }
 
+        private void RegisterInstruction(string name)
+        {
+            InstructionNames[offset] = name;
+        }
         public byte[] Bytes()
         {
             using var ms = new MemoryStream();
@@ -33,6 +38,8 @@
 
         public void AddBasic(byte opcode)
         {
+            RegisterInstruction(((OperationCode)opcode).ToString());
+
             var instr = new Instruction
             {
                 Opcode = (byte)(opcode | AddressingMode.Basic)
@@ -42,6 +49,8 @@
 
         public void AddWithNumeric(byte opcode, int number)
         {
+            RegisterInstruction(((OperationCode)opcode).ToString());
+
             var instr = new Instruction
             {
                 Opcode = (byte)(opcode | AddressingMode.Immediate),
@@ -57,18 +66,23 @@
                 Opcode = (byte)(opcode | AddressingMode.Indirect),
                 Indirect = (ushort)(register | (ushort)displacement)
             };
+
             Add(instr);
         }
 
         public void AddWithLabel(byte opcode, string label)
         {
+            RegisterInstruction(((OperationCode)opcode).ToString());
+
             var instr = new Instruction
             {
                 Opcode = (byte)(opcode | AddressingMode.Indirect)
             };
+
             unresolved[instr] = label;
             Add(instr);
         }
+
 
         private void Add(Instruction instr)
         {
