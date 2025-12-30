@@ -171,5 +171,13 @@
         public void Gt() => AddBasic((byte)OperationCode.Gt);
 
         public void Ge() => AddBasic((byte)OperationCode.Ge);
+
+        public void Shl() => AddBasic((byte)OperationCode.Shl);
+
+        public void Shr() => AddBasic((byte)OperationCode.Shr);
+
+        public void Rol() => AddBasic((byte)OperationCode.Rol);
+
+        public void Ror() => AddBasic((byte)OperationCode.Ror);
     }
 }

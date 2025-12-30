@@ -33,16 +33,36 @@
             //            """;
 
 
-            var source = """
-                        CALL addTwo
-                        HALT
+            //var source = """
+            //            CALL addTwo
+            //            HALT
 
-                        addTwo:
-                            PUSH 2
-                            PUSH 3
-                            ADD
-                            PRINT
-                            RET
+            //            addTwo:
+            //                PUSH 2
+            //                PUSH 3
+            //                ADD
+            //                PRINT
+            //                RET
+            //            """;
+
+            var source = """
+                        PUSH 1
+                        SHL
+                        PRINT
+
+                        PUSH 4
+                        SHR
+                        PRINT
+
+                        PUSH 1
+                        ROL
+                        PRINT 
+
+                        PUSH 1
+                        ROR
+                        PRINT 
+
+                        HALT
                         """;
 
             var assembler = new Assembler.Assembler();

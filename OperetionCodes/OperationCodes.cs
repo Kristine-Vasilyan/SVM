@@ -66,7 +66,12 @@ public static class OperationCodes
                 { OperationCode.Lt, "LT" },
                 { OperationCode.Le, "LE" },
                 { OperationCode.Gt, "GT" },
-                { OperationCode.Ge, "GE" }
+                { OperationCode.Ge, "GE" },
+
+                { OperationCode.Shl, "SHL" },
+                { OperationCode.Shr, "SHR" },
+                { OperationCode.Rol, "ROL" },
+                { OperationCode.Ror, "ROR" }
         };
 
     public static class AddressingMode
@@ -121,7 +126,12 @@ public enum OperationCode : byte
     Lt = 0x15,
     Le = 0x16,
     Gt = 0x17,
-    Ge = 0x18
+    Ge = 0x18,
+
+    Shl = 0x22,
+    Shr = 0x23,
+    Rol = 0x24,
+    Ror = 0x25
 }
 
 

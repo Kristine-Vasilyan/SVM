@@ -120,6 +120,11 @@ namespace SVM.Assembler
                 case "INPUT": builder.Input(); break;
                 case "PRINT": builder.Print(); break;
 
+                case "SHL": builder.Shl(); break;
+                case "SHR": builder.Shr(); break;
+                case "ROL": builder.Rol(); break;
+                case "ROR": builder.Ror(); break;
+
                 // stack 
                 case "PUSH":
                     ParsePush();

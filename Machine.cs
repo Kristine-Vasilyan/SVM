@@ -161,6 +161,22 @@ public class Machine
             case OperationCode.Halt:
                 return false;
 
+            case OperationCode.Shl:
+                Shl();
+                break;
+
+            case OperationCode.Shr:
+                Shr();
+                break;
+
+            case OperationCode.Rol:
+                Rol();
+                break;
+
+            case OperationCode.Ror:
+                Ror();
+                break;
+
             default:
                 throw new Exception($"Unknown opcode: {opcode}");
         }
@@ -369,5 +385,31 @@ public class Machine
             Console.Write($"{memory[i]:X2} ");
         }
         Console.WriteLine();
+    }
+
+    private void Shl()
+    {
+        int value = BasicPop();
+        BasicPush(value << 1);
+    }
+
+    private void Shr()
+    {
+        int value = BasicPop();
+        BasicPush((int)((uint)value >> 1));
+    }
+
+    private void Rol()
+    {
+        int value = BasicPop();
+        int result = (value << 1) | (int)((uint)value >> 31);
+        BasicPush(result);
+    }
+
+    private void Ror()
+    {
+        int value = BasicPop();
+        int result = (int)((uint)value >> 1) | (value << 31);
+        BasicPush(result);
     }
 }
