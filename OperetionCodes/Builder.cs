@@ -13,9 +13,9 @@
 
         public int CurrentOffset => offset;
 
-        public void AddBreakpoint(string instructionName)
+        public void AddBreakpointPlaceholder()
         {
-            Breakpoints[offset] = instructionName;
+            Breakpoints[offset] = "<pending>";
         }
 
         private void RegisterInstruction(string name)
@@ -86,6 +86,13 @@
 
         private void Add(Instruction instr)
         {
+            int instrIp = offset;
+
+            if (Breakpoints.TryGetValue(instrIp, out var name) && name == "<pending>")
+            {
+                Breakpoints[instrIp] = OperationCodes.GetName(instr.Opcode);
+            }
+
             instr.Address = offset;
             offset += instr.Size();
             instructions.Add(instr);

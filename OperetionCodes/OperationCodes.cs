@@ -2,6 +2,15 @@
 
 public static class OperationCodes
 {
+    public static string GetName(byte code)
+    {
+        if (Mnemonics.TryGetValue((OperationCode)code, out var name))
+        {
+            return name;
+        }
+        return "UNKNOWN";
+    }
+
     public static readonly OperationCode[] Codes =
     [
             OperationCode.Nop,

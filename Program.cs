@@ -12,14 +12,14 @@
             //            HALT
             //            """;
 
-            //var source = """
-            //            PUSH 7
-            //            PUSH 3
-            //            MUL
-            //            # breakpoint
-            //            PRINT 
-            //            HALT
-            //            """;
+            var source = """
+                        PUSH 7
+                        PUSH 3
+                        MUL
+                        # breakpoint
+                        PRINT 
+                        HALT
+                        """;
 
             //var source = """
             //            PUSH 0
@@ -45,31 +45,31 @@
             //                RET
             //            """;
 
-            var source = """
-                        PUSH 1
-                        SHL
-                        PRINT
+            //var source = """
+            //            PUSH 1
+            //            SHL
+            //            PRINT
 
-                        PUSH 4
-                        SHR
-                        PRINT
+            //            PUSH 4
+            //            SHR
+            //            PRINT
 
-                        PUSH 1
-                        ROL
-                        PRINT 
+            //            PUSH 1
+            //            ROL
+            //            PRINT 
 
-                        PUSH 1
-                        ROR
-                        PRINT 
+            //            PUSH 1
+            //            ROR
+            //            PRINT 
 
-                        HALT
-                        """;
+            //            HALT
+            //            """;
 
             var assembler = new Assembler.Assembler();
             byte[] program = assembler.Assemble(new StringReader(source));
 
-            var vm = new Machine { TraceMode = true };
-            vm.Load(program, instructionNames: assembler.Builder.InstructionNames);
+            var vm = new Machine { TraceMode = true, DebugMode = true };
+            vm.Load(program, instructionNames: assembler.Builder.InstructionNames, breakpoints: assembler.Builder.Breakpoints);
             vm.Run();
         }
 
