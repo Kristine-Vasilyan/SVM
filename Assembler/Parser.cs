@@ -7,9 +7,15 @@ namespace SVM.Assembler
         private readonly Scanner scanner;
         private readonly Builder builder;
         private Lexeme current;
-        private Dictionary<string, List<Lexeme>> macros = [];
+        private Dictionary<string, MacroDef> macros = [];
         private List<Lexeme> macroBuffer = null;
         private int macroIndex;
+
+        sealed class MacroDef
+        {
+            public List<string> Parameters = [];
+            public List<Lexeme> Body = [];
+        }
 
         public Parser(Scanner scanner, Builder builder)
         {
@@ -28,7 +34,9 @@ namespace SVM.Assembler
                 }
                 else
                 {
-                    current = new Lexeme(Token.Eos, "");
+                    macroBuffer = null;
+                    macroIndex = 0;
+                    Advance();
                 }
             }
             else
@@ -74,7 +82,6 @@ namespace SVM.Assembler
             if (current.Kind == Token.Ident && macros.TryGetValue(current.Value, out var body))
             {
                 ExpandMacro(body);
-                Advance();
                 return;
             }
 
@@ -112,11 +119,17 @@ namespace SVM.Assembler
                 string name = current.Value;
                 Advance();
 
-                var macro = new List<Lexeme>();
+                var macro = new MacroDef();
+
+                while (current.Kind == Token.Ident)
+                {
+                    macro.Parameters.Add(current.Value);
+                    Advance();
+                }
 
                 while (current.Kind != Token.EndMacro)
                 {
-                    macro.Add(current);
+                    macro.Body.Add(current);
                     Advance();
                 }
 
@@ -261,25 +274,47 @@ namespace SVM.Assembler
             emit(reg, offset);
         }
 
-        private void ExpandMacro(List<Lexeme> body)
+        private void ExpandMacro(MacroDef macro)
         {
-            var savedCurrent = current;
-            var savedMacroBuffer = macroBuffer;
-            var savedMacroIndex = macroIndex;
+            Advance();
 
-            macroBuffer = body;
+            var args = new List<Lexeme>();
+
+            for (int i = 0; i < macro.Parameters.Count; i++)
+            {
+                if (current.Kind == Token.NewLine || current.Kind == Token.Eos)
+                {
+                    throw new Exception("Not enough macro arguments");
+                }
+
+                args.Add(current);
+                Advance();
+            }
+
+            var map = new Dictionary<string, Lexeme>();
+            for (int i = 0; i < args.Count; i++)
+            {
+                map[macro.Parameters[i]] = args[i];
+            }
+
+            var expanded = new List<Lexeme>();
+
+            foreach (var lex in macro.Body)
+            {
+                if (lex.Kind == Token.Ident && map.TryGetValue(lex.Value, out var repl))
+                {
+                    expanded.Add(repl);
+                }
+                else
+                {
+                    expanded.Add(lex);
+                }
+            }
+
+            macroBuffer = expanded;
             macroIndex = 0;
 
             Advance();
-
-            while (current.Kind != Token.Eos)
-            {
-                ParseLine();
-            }
-
-            macroBuffer = savedMacroBuffer;
-            macroIndex = savedMacroIndex;
-            current = savedCurrent;
         }
     }
 }

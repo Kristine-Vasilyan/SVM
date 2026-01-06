@@ -65,17 +65,31 @@
             //            HALT
             //            """;
 
+            //var source = """
+            //            .macro INC
+            //                PUSH 1
+            //                ADD
+            //            .endmacro
+
+            //            PUSH 5
+            //            INC
+            //            PRINT
+            //            HALT
+
+            //            """;
+
             var source = """
-                        .macro INC
-                            PUSH 1
+                        .macro ADD2 a b
+                            PUSH a
+                            PUSH b
                             ADD
+
                         .endmacro
 
-                        PUSH 5
-                        INC
+                        ADD2 3 4
                         PRINT
                         HALT
-                        
+
                         """;
 
             var assembler = new Assembler.Assembler();
