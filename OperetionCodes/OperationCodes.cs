@@ -11,39 +11,6 @@ public static class OperationCodes
         return "UNKNOWN";
     }
 
-    public static readonly OperationCode[] Codes =
-    [
-            OperationCode.Nop,
-            OperationCode.Push,
-            OperationCode.Pop,
-            OperationCode.Call,
-            OperationCode.Ret,
-            OperationCode.Jump,
-            OperationCode.Jz,
-            OperationCode.Halt,
-
-            OperationCode.Input,
-            OperationCode.Print,
-
-            OperationCode.Add,
-            OperationCode.Sub,
-            OperationCode.Mul,
-            OperationCode.Div,
-            OperationCode.Mod,
-            OperationCode.Neg,
-
-            OperationCode.And,
-            OperationCode.Or,
-            OperationCode.Not,
-
-            OperationCode.Eq,
-            OperationCode.Ne,
-            OperationCode.Lt,
-            OperationCode.Le,
-            OperationCode.Gt,
-            OperationCode.Ge
-        ];
-
     public static readonly Dictionary<OperationCode, string> Mnemonics =
         new()
         {

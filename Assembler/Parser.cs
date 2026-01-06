@@ -7,6 +7,9 @@ namespace SVM.Assembler
         private readonly Scanner scanner;
         private readonly Builder builder;
         private Lexeme current;
+        private Dictionary<string, List<Lexeme>> macros = [];
+        private List<Lexeme> macroBuffer = null;
+        private int macroIndex;
 
         public Parser(Scanner scanner, Builder builder)
         {
@@ -17,7 +20,21 @@ namespace SVM.Assembler
 
         private void Advance()
         {
-            current = scanner.ScanOne();
+            if (macroBuffer != null)
+            {
+                if (macroIndex < macroBuffer.Count)
+                {
+                    current = macroBuffer[macroIndex++];
+                }
+                else
+                {
+                    current = new Lexeme(Token.Eos, "");
+                }
+            }
+            else
+            {
+                current = scanner.ScanOne();
+            }
         }
 
         private void Expect(Token kind)
@@ -54,6 +71,14 @@ namespace SVM.Assembler
                 return;
             }
 
+            if (current.Kind == Token.Ident && macros.TryGetValue(current.Value, out var body))
+            {
+                ExpandMacro(body);
+                Advance();
+                return;
+            }
+
+
             if (current.Kind == Token.Ident)
             {
                 string name = current.Value;
@@ -74,6 +99,32 @@ namespace SVM.Assembler
                 ParseInstruction();
                 return;
             }
+
+            if (current.Kind == Token.Macro)
+            {
+                Advance();
+
+                if (current.Kind != Token.Ident)
+                {
+                    throw new Exception("Macro name expected");
+                }
+
+                string name = current.Value;
+                Advance();
+
+                var macro = new List<Lexeme>();
+
+                while (current.Kind != Token.EndMacro)
+                {
+                    macro.Add(current);
+                    Advance();
+                }
+
+                macros[name] = macro;
+                Advance();
+                return;
+            }
+
 
             throw new Exception($"Unexpected token {current}");
         }
@@ -208,6 +259,27 @@ namespace SVM.Assembler
             Expect(Token.RightBr);
 
             emit(reg, offset);
+        }
+
+        private void ExpandMacro(List<Lexeme> body)
+        {
+            var savedCurrent = current;
+            var savedMacroBuffer = macroBuffer;
+            var savedMacroIndex = macroIndex;
+
+            macroBuffer = body;
+            macroIndex = 0;
+
+            Advance();
+
+            while (current.Kind != Token.Eos)
+            {
+                ParseLine();
+            }
+
+            macroBuffer = savedMacroBuffer;
+            macroIndex = savedMacroIndex;
+            current = savedCurrent;
         }
     }
 }

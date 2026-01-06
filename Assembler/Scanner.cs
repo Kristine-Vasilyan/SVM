@@ -68,6 +68,17 @@ namespace SVM.Assembler
                 return new Lexeme(tok, ch.ToString());
             }
 
+            if (ch == '.')
+            {
+                string word = ReadCharsWhile(char.IsLetter);
+                return word switch
+                {
+                    "macro" => new Lexeme(Token.Macro, ".macro"),
+                    "endmacro" => new Lexeme(Token.EndMacro, ".endmacro"),
+                    _ => new Lexeme(Token.Unknown, "." + word)
+                };
+            }
+
             return new Lexeme(Token.Unknown, ch.ToString());
         }
 

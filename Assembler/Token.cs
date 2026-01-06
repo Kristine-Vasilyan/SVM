@@ -14,7 +14,9 @@
         Plus,
         Minus,
         Eos,
-        Breakpoint
+        Breakpoint,
+        Macro,
+        EndMacro
     }
 
     public static class TokenNames
