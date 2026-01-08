@@ -10,6 +10,7 @@ public class Machine
     int fp;
     public bool DebugMode { get; set; } = false;
     public bool TraceMode { get; set; } = false;
+
     public Dictionary<int, string> Breakpoints = [];
     private Dictionary<int, string> InstructionNames = [];
 
@@ -47,21 +48,6 @@ public class Machine
         byte command = memory[ip++];
         byte mode = (byte)(command & 0xC0);
         OperationCode opcode = (OperationCode)(command & 0x3F);
-
-        if (TraceMode)
-        {
-            string name = InstructionNames != null && InstructionNames.TryGetValue(currentIp, out var n) ? n : opcode.ToString();
-
-            Console.WriteLine($"TRACE IP={currentIp:X4} {name,-8} SP={sp} FP={fp}");
-        }
-
-        if (DebugMode && Breakpoints != null && Breakpoints.TryGetValue(currentIp, out string bpName))
-        {
-            Console.WriteLine($"--- BREAKPOINT at {currentIp:X4} ({bpName}) ---");
-            DumpState();
-            Console.WriteLine("Press ENTER to continue...");
-            Console.ReadLine();
-        }
 
         switch (opcode)
         {
@@ -181,6 +167,21 @@ public class Machine
 
             default:
                 throw new Exception($"Unknown opcode: {opcode}");
+        }
+
+        if (TraceMode)
+        {
+            string name = InstructionNames != null && InstructionNames.TryGetValue(ip, out var n) ? n : opcode.ToString();
+
+            Console.WriteLine($"TRACE IP={ip:X4} {name,-8} SP={sp} FP={fp}");
+        }
+
+        if (DebugMode && Breakpoints != null && Breakpoints.TryGetValue(ip, out string bpName))
+        {
+            Console.WriteLine($"--- BREAKPOINT at {ip:X4} ({bpName}) ---");
+            DumpState();
+            Console.WriteLine("Press ENTER to continue...");
+            Console.ReadLine();
         }
 
         return true;

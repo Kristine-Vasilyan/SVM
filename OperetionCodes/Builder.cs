@@ -11,8 +11,6 @@
         public Dictionary<int, string> Breakpoints { get; } = [];
         public Dictionary<int, string> InstructionNames { get; } = [];
 
-        public int CurrentOffset => offset;
-
         public void AddBreakpointPlaceholder()
         {
             Breakpoints[offset] = "<pending>";
@@ -22,6 +20,7 @@
         {
             InstructionNames[offset] = name;
         }
+
         public byte[] Bytes()
         {
             using var ms = new MemoryStream();
@@ -63,6 +62,8 @@
 
         public void AddWithAddress(byte opcode, ushort register, short displacement)
         {
+            RegisterInstruction(((OperationCode)opcode).ToString());
+
             var instr = new Instruction
             {
                 Opcode = (byte)(opcode | AddressingMode.Indirect),
@@ -84,7 +85,6 @@
             unresolved[instr] = label;
             Add(instr);
         }
-
 
         private void Add(Instruction instr)
         {
@@ -108,17 +108,13 @@
                 var label = pair.Value;
 
                 if (!labels.TryGetValue(label, out int value))
+                {
                     throw new Exception($"Unknown label: {label}");
+                }
 
                 instr.Indirect = (ushort)value;
             }
             return true;
-        }
-
-        public void Dump(TextWriter writer)
-        {
-            foreach (var instr in instructions)
-                writer.WriteLine(instr.ToString());
         }
 
         public void PushI(int value) => AddWithNumeric((byte)OperationCode.Push, value);

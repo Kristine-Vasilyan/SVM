@@ -12,14 +12,14 @@
             //            HALT
             //            """;
 
-            //var source = """
-            //            PUSH 7
-            //            PUSH 3
-            //            MUL
-            //            # breakpoint
-            //            PRINT 
-            //            HALT
-            //            """;
+            var source = """
+                        PUSH 7
+                        PUSH 3
+                        MUL
+                        # breakpoint
+                        PRINT 
+                        HALT
+                        """;
 
             //var source = """
             //            PUSH 0
@@ -78,24 +78,24 @@
 
             //            """;
 
-            var source = """
-                        .macro ADD2 a b
-                            PUSH a
-                            PUSH b
-                            ADD
-                        .endmacro
+            //var source = """
+            //            .macro ADD2 a b
+            //                PUSH a
+            //                PUSH b
+            //                ADD
+            //            .endmacro
 
-                        ADD2 3 4
-                        PRINT
-                        HALT
+            //            ADD2 3 4
+            //            PRINT
+            //            HALT
 
-                        """;
+            //            """;
 
             var assembler = new Assembler.Assembler();
             byte[] program = assembler.Assemble(new StringReader(source));
 
-            var vm = new Machine { };
-            vm.Load(program);
+            var vm = new Machine { DebugMode = true, TraceMode = true };
+            vm.Load(program, instructionNames: assembler.Builder.InstructionNames, assembler.Builder.Breakpoints);
             vm.Run();
         }
 

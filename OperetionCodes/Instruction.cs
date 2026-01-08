@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace SVM.OperetionCodes
+﻿namespace SVM.OperetionCodes
 {
     public class Instruction
     {
@@ -26,7 +24,7 @@ namespace SVM.OperetionCodes
 
         public byte[] Bytes()
         {
-            byte[] result = new byte[Size()];
+            var result = new byte[Size()];
             result[0] = Opcode;
 
             switch (Opcode & 0xC0)
@@ -42,18 +40,6 @@ namespace SVM.OperetionCodes
                     break;
             }
             return result;
-        }
-
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-            sb.Append($"{Address:X4}");
-
-            foreach (var b in Bytes())
-            {
-                sb.Append($" {b:X2}");
-            }
-            return sb.ToString();
         }
     }
 

@@ -85,7 +85,6 @@ namespace SVM.Assembler
                 return;
             }
 
-
             if (current.Kind == Token.Ident)
             {
                 string name = current.Value;
@@ -229,7 +228,9 @@ namespace SVM.Assembler
         private void ParseLabelOperand(Action<string> emit)
         {
             if (current.Kind != Token.Ident)
+            {
                 throw new Exception("Expected label");
+            }
 
             emit(current.Value);
             Advance();
