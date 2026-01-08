@@ -1,0 +1,38 @@
+﻿Program   = { Line | Macros }.
+Line      = [Label] [[Breakpoint] Operation] NewLines.
+Label     = IDENT ':'.
+Operation = 'NOP'
+          | 'PUSH' (NUMBER | Indirect)
+          | 'POP' Indirect
+          | 'CALL' IDENT
+          | 'JUMP' IDENT
+          | 'JZ' IDENT
+          | 'RET'
+          | 'HALT'
+          | 'INPUT'
+          | 'PRINT'
+          | 'ADD'
+          | 'SUB'
+          | 'MUL'
+          | 'DIV'
+          | 'MOD'
+          | 'NEG'
+          | 'AND'
+          | 'OR'
+          | 'NOT'
+          | 'EQ'
+          | 'NE'
+          | 'LT'
+          | 'LE'
+          | 'GT'
+          | 'GE'
+          | 'SHL'
+          | 'SHR'
+          | 'ROL'
+          | 'ROR'
+          .
+NewLines  = '\n' { '\n' }.
+Indirect  = '[' Register ('+'|'-') NUMBER ']'.
+Register  = 'IP' | 'SP' | 'FP'.
+Breakpoint = '#breakpoint'
+Macros = '.macro' IDENT {IDENT} {Line} '.endmacro'

@@ -83,7 +83,6 @@
                             PUSH a
                             PUSH b
                             ADD
-
                         .endmacro
 
                         ADD2 3 4

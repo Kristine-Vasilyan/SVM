@@ -40,7 +40,9 @@ namespace SVM.Assembler
             }
 
             if (ch == '\0')
+            {
                 return new Lexeme(Token.Eos, "EOS");
+            }
 
             if (char.IsLetter(ch))
             {
@@ -48,10 +50,14 @@ namespace SVM.Assembler
                 string text = ReadCharsWhile(IsAlphaNumeric);
 
                 if (IsOperation(text))
+                {
                     return new Lexeme(Token.Operation, text);
+                }
 
                 if (IsRegister(text))
+                {
                     return new Lexeme(Token.Register, text);
+                }
 
                 return new Lexeme(Token.Ident, text);
             }

@@ -26,7 +26,9 @@
         {
             using var ms = new MemoryStream();
             foreach (var instr in instructions)
+            {
                 ms.Write(instr.Bytes());
+            }
             return ms.ToArray();
         }
 
