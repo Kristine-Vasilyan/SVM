@@ -9,16 +9,10 @@
         private int offset = 0;
 
         public Dictionary<int, string> Breakpoints { get; } = [];
-        public Dictionary<int, string> InstructionNames { get; } = [];
 
         public void AddBreakpointPlaceholder()
         {
             Breakpoints[offset] = "<pending>";
-        }
-
-        private void RegisterInstruction(string name)
-        {
-            InstructionNames[offset] = name;
         }
 
         public byte[] Bytes()
@@ -39,8 +33,6 @@
 
         public void AddBasic(byte opcode)
         {
-            RegisterInstruction(((OperationCode)opcode).ToString());
-
             var instr = new Instruction
             {
                 Opcode = (byte)(opcode | AddressingMode.Basic)
@@ -50,8 +42,6 @@
 
         public void AddWithNumeric(byte opcode, int number)
         {
-            RegisterInstruction(((OperationCode)opcode).ToString());
-
             var instr = new Instruction
             {
                 Opcode = (byte)(opcode | AddressingMode.Immediate),
@@ -62,8 +52,6 @@
 
         public void AddWithAddress(byte opcode, ushort register, short displacement)
         {
-            RegisterInstruction(((OperationCode)opcode).ToString());
-
             var instr = new Instruction
             {
                 Opcode = (byte)(opcode | AddressingMode.Indirect),
@@ -75,8 +63,6 @@
 
         public void AddWithLabel(byte opcode, string label)
         {
-            RegisterInstruction(((OperationCode)opcode).ToString());
-
             var instr = new Instruction
             {
                 Opcode = (byte)(opcode | AddressingMode.Indirect)

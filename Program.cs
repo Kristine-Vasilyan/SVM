@@ -95,7 +95,7 @@
             byte[] program = assembler.Assemble(new StringReader(source));
 
             var vm = new Machine { DebugMode = true, TraceMode = true };
-            vm.Load(program, instructionNames: assembler.Builder.InstructionNames, assembler.Builder.Breakpoints);
+            vm.Load(program, breakpoints: assembler.Builder.Breakpoints);
             vm.Run();
         }
 

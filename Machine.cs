@@ -147,6 +147,11 @@ public class Machine
                 break;
 
             case OperationCode.Halt:
+                if (TraceMode)
+                {
+                    OperationCodes.Mnemonics.TryGetValue(opcode, out var name);
+                    Console.WriteLine($"TRACE IP={ip:X4} {name} SP={sp} FP={fp}");
+                }
                 return false;
 
             case OperationCode.Shl:
@@ -171,9 +176,8 @@ public class Machine
 
         if (TraceMode)
         {
-            string name = InstructionNames != null && InstructionNames.TryGetValue(ip, out var n) ? n : opcode.ToString();
-
-            Console.WriteLine($"TRACE IP={ip:X4} {name,-8} SP={sp} FP={fp}");
+            OperationCodes.Mnemonics.TryGetValue(opcode, out var name);
+            Console.WriteLine($"TRACE IP={ip:X4} {name} SP={sp} FP={fp}");
         }
 
         if (DebugMode && Breakpoints != null && Breakpoints.TryGetValue(ip, out string bpName))
