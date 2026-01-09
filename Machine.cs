@@ -12,7 +12,6 @@ public class Machine
     public bool TraceMode { get; set; } = false;
 
     public Dictionary<int, string> Breakpoints = [];
-    private Dictionary<int, string> InstructionNames = [];
 
     const int MemorySize = 1024 * 16;
 
@@ -24,7 +23,7 @@ public class Machine
         memory = new byte[MemorySize];
     }
 
-    public void Load(byte[] loadData, Dictionary<int, string> instructionNames = null, Dictionary<int, string> breakpoints = null)
+    public void Load(byte[] loadData, Dictionary<int, string> breakpoints = null)
     {
         if (loadData.Length > memory.Length)
         {
@@ -36,8 +35,6 @@ public class Machine
         ip = 0;
         sp = loadData.Length;
         fp = sp;
-
-        InstructionNames = instructionNames != null ? new Dictionary<int, string>(instructionNames) : [];
 
         Breakpoints = breakpoints != null ? new Dictionary<int, string>(breakpoints) : [];
     }
@@ -177,12 +174,12 @@ public class Machine
         if (TraceMode)
         {
             OperationCodes.Mnemonics.TryGetValue(opcode, out var name);
-            Console.WriteLine($"TRACE IP={ip:X4} {name} SP={sp} FP={fp}");
+            Console.WriteLine($"TRACE IP={ip} {name} SP={sp} FP={fp}");
         }
 
         if (DebugMode && Breakpoints != null && Breakpoints.TryGetValue(ip, out string bpName))
         {
-            Console.WriteLine($"--- BREAKPOINT at {ip:X4} ({bpName}) ---");
+            Console.WriteLine($"--- BREAKPOINT at {ip} ({bpName}) ---");
             DumpState();
             Console.WriteLine("Press ENTER to continue...");
             Console.ReadLine();
